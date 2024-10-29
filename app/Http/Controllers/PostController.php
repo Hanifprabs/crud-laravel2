@@ -80,6 +80,13 @@ Disimpan!'
 Berhasil Diubah!'
         ]);
     }
+
+    public function show($id)
+{
+    $post = Post::findOrFail($id);
+    return view('posts.show', compact('post'));
+}
+
     public function destroy(Post $post)
     {
         // Hapus gambar, pastikan Anda memeriksa apakah gambar ada sebelum menghapusnya

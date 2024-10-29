@@ -1,15 +1,13 @@
 @extends('dashboard')
 @section('content')
 
-
 <body style="background: lightgray">
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-12">
                 <div class="card border-0 shadow rounded">
                     <div class="card-body">
-                        <a href="{{ route('posts.create') }}" class="btn btn-md btn-success
-                        mb-3">TAMBAH MAHASISWA</a>
+                        <a href="{{ route('posts.create') }}" class="btn btn-md btn-success mb-3">TAMBAH MAHASISWA</a>
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
@@ -31,6 +29,8 @@
                                         <td class="text-center">
                                             <form onsubmit="return confirm('Apakah Anda Yakin ?');"
                                                 action="{{ route('posts.destroy', $post->id) }}" method="POST">
+                                                <a href="{{ route('posts.show', $post->id) }}"
+                                                    class="btn btn-sm btn-info">SHOW</a>
                                                 <a href="{{ route('posts.edit', $post->id) }}"
                                                     class="btn btn-sm btn-primary">EDIT</a>
                                                 @csrf
@@ -41,7 +41,8 @@
                                     </tr>
                                 @empty
                                     <div class="alert alert-danger">
-                                        Data Mahasiswa belum Tersedia. </div>
+                                        Data Mahasiswa belum Tersedia.
+                                    </div>
                                 @endforelse
                             </tbody>
                         </table>
@@ -51,7 +52,5 @@
             </div>
         </div>
     </div>
-
-
 </body>
 @endsection
