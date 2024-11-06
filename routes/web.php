@@ -4,30 +4,30 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\HomeController;
 
-// Dashboard route
+// Rute dashboard
 Route::get('/dashboard', function () {
-    return view('dashboard'); // Make sure to create the dashboard.blade.php view
+    return view('dashboard'); // Pastikan untuk membuat tampilan dashboard.blade.php
 })->middleware('auth');
 
-// Redirect root route to dashboard
+// Redirect rute root ke dashboard
 Route::get('/', function () {
     return redirect('/dashboard');
 })->middleware('auth');
 
-// Authentication routes
+// Rute otentikasi
 Auth::routes();
 
-Route::get('/posts', function () {
-    return view('index'); // Ensure the view exists at resources/views/crud/index.blade.php
-})->middleware('auth'); // Optional auth middleware if you want it to be protected
-
-Route::get('/posts', function () {
-    return view('create'); // Ensure the view exists at resources/views/crud/index.blade.php
-})->middleware('auth'); // Optional auth middleware if you want it to be protected
-
-
-// Home route (optional if not used)
+// Rute home (opsional jika tidak digunakan)
 Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
-// Resource route for posts
+// Rute resource untuk posting
 Route::resource('/posts', PostController::class)->middleware('auth');
+
+// Rute untuk menghasilkan PDF
+Route::resource('posts', PostController::class);
+
+// Route for printing the posts as PDF
+Route::get('views/posts/cetak', [PostController::class, 'cetak'])->name('posts.cetak');
+
+// Rute untuk menampilkan tabel data mahasiswa
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index')->middleware('auth');

@@ -1,107 +1,118 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Post;
 use Illuminate\Http\Request;
-use illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage;
+use PDF; // Pastikan untuk menambahkan import untuk PDF
 
 class PostController extends Controller
 {
+
     public function index()
     {
-        //get posts
-        $posts = Post::latest()->paginate(5);
-        //render view with posts
+        $posts = Post::paginate(10); // Ambil data mahasiswa dengan pagination
         return view('posts.index', compact('posts'));
     }
+
+public function cetak()
+{
+    // Ambil semua data post
+    $data['posts'] = Post::all();
+
+    // Muat tampilan untuk PDF dan kirimkan data
+    $pdf = PDF::loadView('posts.cetak', $data);
+    
+    // Unduh PDF dengan nama file tertentu
+    return $pdf->download('data-mahasiswa.pdf');
+}
     public function create()
     {
         return view('posts.create');
     }
+
     public function store(Request $request)
     {
-        //validate form
+        // Validasi formulir
         $request->validate([
             'foto_mahasiswa' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'nim' => 'required|min:5',
             'nama_mahasiswa' => 'required|min:5'
         ]);
-        //upload image
+        // Mengunggah gambar
         $image = $request->file('foto_mahasiswa');
         $image->storeAs('public/posts', $image->hashName());
-        //create post
+        // Membuat posting baru
         Post::create([
             'foto_mahasiswa' => $image->hashName(),
             'nim' => $request->nim,
             'nama_mahasiswa' => $request->nama_mahasiswa
         ]);
-        //redirect to index
+        // Mengalihkan ke halaman index dengan pesan sukses
         return redirect()->route('posts.index')->with([
-            'success' => 'Data Berhasil
-Disimpan!'
+            'success' => 'Data Berhasil Disimpan!'
         ]);
     }
+
     public function edit(Post $post)
     {
         return view('posts.edit', compact('post'));
     }
+
     public function update(Request $request, Post $post)
     {
-        //validate form
-        $request->validate( [
-            'foto_mahasiswa' =>
-                'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        // Validasi formulir
+        $request->validate([
+            'foto_mahasiswa' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'nim' => 'required|min:5',
             'nama_mahasiswa' => 'required|min:5'
         ]);
-        //check if image is uploaded
+        // Memeriksa apakah gambar diunggah
         if ($request->hasFile('foto_mahasiswa')) {
-            //upload new image
+            // Mengunggah gambar baru
             $image = $request->file('foto_mahasiswa');
             $image->storeAs('public/posts', $image->hashName());
-            //delete old image
-           \Storage::delete('public/posts/' . $post->foto_mahasiswa);
-            //update post with new image
+            // Menghapus gambar lama
+            Storage::delete('public/posts/' . $post->foto_mahasiswa);
+            // Memperbarui posting dengan gambar baru
             $post->update([
                 'foto_mahasiswa' => $image->hashName(),
                 'nim' => $request->nim,
                 'nama_mahasiswa' => $request->nama_mahasiswa
             ]);
         } else {
-            //update post without image
+            // Memperbarui posting tanpa gambar
             $post->update([
                 'nim' => $request->nim,
                 'nama_mahasiswa' => $request->nama_mahasiswa
             ]);
         }
-        //redirect to index
+        // Mengalihkan ke halaman index dengan pesan sukses
         return redirect()->route('posts.index')->with([
-            'success' => 'Data
-Berhasil Diubah!'
+            'success' => 'Data Berhasil Diubah!'
         ]);
     }
 
     public function show($id)
-{
-    $post = Post::findOrFail($id);
-    return view('posts.show', compact('post'));
-}
+    {
+        $post = Post::findOrFail($id);
+        return view('posts.show', compact('post'));
+    }
 
     public function destroy(Post $post)
     {
-        // Hapus gambar, pastikan Anda memeriksa apakah gambar ada sebelum menghapusnya
-        if ($post->image && Storage::exists('public/posts/' . $post->image)) {
-            Storage::delete('public/posts/' . $post->image);
+        // Menghapus gambar jika ada
+        if ($post->foto_mahasiswa && Storage::exists('public/posts/' . $post->foto_mahasiswa)) {
+            Storage::delete('public/posts/' . $post->foto_mahasiswa);
         }
-    
-        // Hapus post
+        
+        // Menghapus post
         $post->delete();
-    
-        // Redirect ke halaman index dengan pesan sukses
+        
+        // Mengalihkan ke halaman index dengan pesan sukses
         return redirect()->route('posts.index')->with([
             'success' => 'Data Berhasil Dihapus!'
         ]);
     }
-    
-
 }
